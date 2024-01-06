@@ -1,6 +1,6 @@
 package main
 
-import "github.com/irvankadhafi/go-boilerplate/internal/console"
+import "github.com/irvankadhafi/talent-hub-service/internal/console"
 
 func main() {
 	console.Execute()

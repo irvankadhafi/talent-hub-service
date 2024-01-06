@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"context"
-	"github.com/irvankadhafi/go-boilerplate/internal/model"
+	"github.com/irvankadhafi/talent-hub-service/internal/model"
 )
 
 type helloUsecase struct {

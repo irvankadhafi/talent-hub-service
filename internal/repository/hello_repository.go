@@ -2,8 +2,8 @@ package repository
 
 import (
 	"context"
-	"github.com/irvankadhafi/go-boilerplate/internal/model"
-	"github.com/irvankadhafi/go-boilerplate/utils"
+	"github.com/irvankadhafi/talent-hub-service/internal/model"
+	"github.com/irvankadhafi/talent-hub-service/utils"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )

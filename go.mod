@@ -1,8 +1,10 @@
-module github.com/irvankadhafi/go-boilerplate
+module github.com/irvankadhafi/talent-hub-service
 
 go 1.18
 
 require (
+	github.com/go-redsync/redsync/v4 v4.5.1
+	github.com/gomodule/redigo v1.8.9
 	github.com/jpillora/backoff v1.0.0
 	github.com/labstack/echo/v4 v4.10.0
 	github.com/labstack/gommon v0.4.0
@@ -18,7 +20,10 @@ require (
 require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/go-gorp/gorp/v3 v3.0.2 // indirect
+	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
+	github.com/hashicorp/errwrap v1.1.0 // indirect
+	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect

@@ -1,7 +1,7 @@
 package console
 
 import (
-	"github.com/irvankadhafi/go-boilerplate/internal/config"
+	"github.com/irvankadhafi/talent-hub-service/internal/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"os"

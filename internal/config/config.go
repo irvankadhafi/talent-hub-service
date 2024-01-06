@@ -113,3 +113,8 @@ func DatabaseConnMaxLifetime() time.Duration {
 	}
 	return time.Duration(viper.GetInt("postgres.conn_max_lifetime")) * time.Millisecond
 }
+
+// DisableCaching :nodoc:
+func DisableCaching() bool {
+	return viper.GetBool("disable_caching")
+}

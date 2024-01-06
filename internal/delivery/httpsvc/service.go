@@ -1,7 +1,7 @@
 package httpsvc
 
 import (
-	"github.com/irvankadhafi/go-boilerplate/internal/model"
+	"github.com/irvankadhafi/talent-hub-service/internal/model"
 	"github.com/labstack/echo/v4"
 )
 
@@ -17,7 +17,7 @@ type Service struct {
 func RouteService(
 	echo *echo.Group,
 	helloUsecase model.HelloUsecase,
-	//authMiddleware *auth.AuthenticationMiddleware,
+	// authMiddleware *auth.AuthenticationMiddleware,
 ) {
 	srv := &Service{
 		echo:         echo,
