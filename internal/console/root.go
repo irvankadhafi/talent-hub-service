@@ -1,6 +1,7 @@
 package console
 
 import (
+	"github.com/irvankadhafi/go-boilerplate/internal/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"os"
@@ -20,4 +21,9 @@ func Execute() {
 		logrus.Error(err)
 		os.Exit(1)
 	}
+}
+
+func init() {
+	RootCmd.PersistentFlags().BoolP("integration", "i", false, "use integration config file")
+	config.GetConf()
 }
