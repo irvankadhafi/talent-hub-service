@@ -1,33 +1,34 @@
 package httpsvc
 
 import (
+	"github.com/irvankadhafi/talent-hub-service/auth"
 	"github.com/irvankadhafi/talent-hub-service/internal/model"
 	"github.com/labstack/echo/v4"
 )
 
 // Service http service
 type Service struct {
-	echo         *echo.Group
-	helloUsecase model.HelloUsecase
-	// ... usecases
-	//httpMiddleware *auth.AuthenticationMiddleware
+	group          *echo.Group
+	authUsecase    model.AuthUsecase
+	authMiddleware *auth.AuthenticationMiddleware
 }
 
 // RouteService add dependencies and use group for routing
 func RouteService(
-	echo *echo.Group,
-	helloUsecase model.HelloUsecase,
-	// authMiddleware *auth.AuthenticationMiddleware,
+	group *echo.Group,
+	authUSecase model.AuthUsecase,
+	authMiddleware *auth.AuthenticationMiddleware,
 ) {
 	srv := &Service{
-		echo:         echo,
-		helloUsecase: helloUsecase,
-		// ... usecases
-		//httpMiddleware: authMiddleware,
+		group:          group,
+		authUsecase:    authUSecase,
+		authMiddleware: authMiddleware,
 	}
 	srv.initRoutes()
 }
 
 func (s *Service) initRoutes() {
-	// ... routes
+	s.group.POST("/auth/login/", s.handleLoginByIdentifierPassword())
+	s.group.POST("/auth/tokens/refresh/", s.handleRefreshToken())
+	s.group.POST("/auth/logout/", s.handleLogout(), s.authMiddleware.MustAuthenticateAccessToken())
 }

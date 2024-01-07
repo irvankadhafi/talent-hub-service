@@ -3,12 +3,15 @@ package console
 import (
 	"context"
 	"fmt"
+	"github.com/irvankadhafi/talent-hub-service/auth"
 	"github.com/irvankadhafi/talent-hub-service/internal/config"
 	"github.com/irvankadhafi/talent-hub-service/internal/db"
 	"github.com/irvankadhafi/talent-hub-service/internal/delivery/httpsvc"
 	"github.com/irvankadhafi/talent-hub-service/internal/helper"
 	"github.com/irvankadhafi/talent-hub-service/internal/repository"
 	"github.com/irvankadhafi/talent-hub-service/internal/usecase"
+	"github.com/irvankadhafi/talent-hub-service/pkg/cacher"
+	"github.com/irvankadhafi/talent-hub-service/utils"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
@@ -39,11 +42,25 @@ func runServer(cmd *cobra.Command, args []string) {
 	continueOrFatal(err)
 	defer helper.WrapCloser(pgDB.Close)
 
-	helloRepository := repository.NewHelloRepository(db.PostgreSQL)
-	helloUsecase := usecase.NewHelloUsecase(helloRepository)
+	cacheManager := cacher.ConstructCacheManager()
+
+	if !config.DisableCaching() {
+		redisDB, err := db.InitializeRedigoRedisConnectionPool(config.RedisCacheHost(), redisOptions)
+		continueOrFatal(err)
+		defer utils.WrapCloser(redisDB.Close)
+
+		cacheManager.SetConnectionPool(redisDB)
+	}
+
+	cacheManager.SetDisableCaching(config.DisableCaching())
+
+	candidateRepo := repository.NewCandidateRepository(db.PostgreSQL, cacheManager)
+	sessionRepo := repository.NewSessionRepository(db.PostgreSQL, cacheManager)
+	authUsecase := usecase.NewAuthUsecase(candidateRepo, sessionRepo)
+	userAuther := usecase.NewCandidateAutherAdapter(authUsecase)
 
 	httpServer := echo.New()
-	//httpMiddleware := auth.NewAuthenticationMiddleware(userAuther)
+	authMiddleware := auth.NewAuthenticationMiddleware(userAuther, cacheManager)
 
 	httpServer.Pre(middleware.AddTrailingSlash())
 	httpServer.Use(middleware.Logger())
@@ -51,7 +68,7 @@ func runServer(cmd *cobra.Command, args []string) {
 	httpServer.Use(middleware.CORS())
 
 	apiGroup := httpServer.Group("/api")
-	httpsvc.RouteService(apiGroup, helloUsecase)
+	httpsvc.RouteService(apiGroup, authUsecase, authMiddleware)
 
 	sigCh := make(chan os.Signal, 1)
 	errCh := make(chan error, 1)

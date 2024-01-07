@@ -197,6 +197,54 @@ func (c *candidateRepository) FindByPhone(ctx context.Context, phone string) (*m
 	return c.FindByID(ctx, id)
 }
 
+func (c *candidateRepository) FindUnscopedByEmail(ctx context.Context, email string) (*model.Candidate, error) {
+	if email == "" {
+		return nil, nil
+	}
+
+	logger := logrus.WithFields(logrus.Fields{
+		"ctx":   utils.DumpIncomingContext(ctx),
+		"email": email,
+	})
+
+	var id int64
+	err := c.db.WithContext(ctx).Model(model.Candidate{}).Unscoped().Select("id").Take(&id, "email = ?", email).Error
+	switch err {
+	case nil:
+	case gorm.ErrRecordNotFound:
+		return nil, nil
+	default:
+		logger.Error(err)
+		return nil, err
+	}
+
+	return c.FindByID(ctx, id)
+}
+
+func (c *candidateRepository) FindUnscopedByPhone(ctx context.Context, phone string) (*model.Candidate, error) {
+	if phone == "" {
+		return nil, nil
+	}
+
+	logger := logrus.WithFields(logrus.Fields{
+		"ctx":   utils.DumpIncomingContext(ctx),
+		"phone": phone,
+	})
+
+	var id int64
+	err := c.db.WithContext(ctx).Model(model.Candidate{}).Unscoped().Select("id").Take(&id, "phone = ?", phone).Error
+	switch err {
+	case nil:
+	case gorm.ErrRecordNotFound:
+		return nil, nil
+	default:
+		logger.Error(err)
+		return nil, err
+	}
+
+	return c.FindByID(ctx, id)
+}
+
 func (c *candidateRepository) Create(ctx context.Context, candidate *model.Candidate) error {
 	logger := logrus.WithContext(ctx).WithFields(logrus.Fields{
 		"ctx":       utils.DumpIncomingContext(ctx),
@@ -237,8 +285,8 @@ func (c *candidateRepository) Update(ctx context.Context, candidate *model.Candi
 func (c *candidateRepository) deleteCommonCache(candidate *model.Candidate) error {
 	cacheKeys := []string{
 		c.newCacheKeyByID(candidate.ID),
-		c.newCacheKeyByEmail(candidate.Email),
-		c.newCacheKeyByPhone(candidate.Phone),
+		c.newCacheKeyByEmail(candidate.Email.String),
+		c.newCacheKeyByPhone(candidate.Phone.String),
 	}
 
 	return c.cacheManager.DeleteByKeys(cacheKeys)

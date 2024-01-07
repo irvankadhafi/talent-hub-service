@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/irvankadhafi/talent-hub-service/utils"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"time"
@@ -114,7 +115,58 @@ func DatabaseConnMaxLifetime() time.Duration {
 	return time.Duration(viper.GetInt("postgres.conn_max_lifetime")) * time.Millisecond
 }
 
+func RedisCacheHost() string {
+	return viper.GetString("redis.cache_host")
+}
+
+func RedisWorkerHost() string {
+	return viper.GetString("redis.worker_host")
+}
+
+func RedisDialTimeout() time.Duration {
+	return utils.ParseDurationWithDefault(viper.GetString("redis.dial_timeout"), 5*time.Second)
+}
+
+func RedisWriteTimeout() time.Duration {
+	return utils.ParseDurationWithDefault(viper.GetString("redis.write_timeout"), 2*time.Second)
+}
+
+func RedisReadTimeout() time.Duration {
+	return utils.ParseDurationWithDefault(viper.GetString("redis.read_timeout"), 2*time.Second)
+}
+
+func RedisMaxIdleConn() int {
+	return utils.ValueOrDefault[int](utils.StringToInt[int](viper.GetString("redis.max_idle_conn")), 20)
+}
+
+func RedisMaxActiveConn() int {
+	return utils.ValueOrDefault[int](utils.StringToInt[int](viper.GetString("redis.max_active_conn")), 50)
+}
+
 // DisableCaching :nodoc:
 func DisableCaching() bool {
 	return viper.GetBool("disable_caching")
+}
+
+// SessionDeleteBatchSize get max deletion limit on each old sess deletion loop
+func SessionDeleteBatchSize() int {
+	cfg := viper.GetInt("session.deletion_batch_size")
+
+	if cfg <= 0 {
+		return DefaultSessionDeleteBatchSize
+	}
+
+	return cfg
+}
+
+// AccessTokenDuration get access token increment duration in hour
+func AccessTokenDuration() time.Duration {
+	cfg := viper.GetString("session.access_token_duration")
+	return utils.ParseDurationWithDefault(cfg, DefaultAccessTokenDuration)
+}
+
+// RefreshTokenDuration get refresh token increment duration in hour
+func RefreshTokenDuration() time.Duration {
+	cfg := viper.GetString("session.refresh_token_duration")
+	return utils.ParseDurationWithDefault(cfg, DefaultRefreshTokenDuration)
 }
